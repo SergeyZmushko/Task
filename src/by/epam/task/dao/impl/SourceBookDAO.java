@@ -5,6 +5,7 @@ import by.epam.task.dao.BookDAO;
 import by.epam.task.dao.DAOException;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,6 +90,43 @@ public class SourceBookDAO implements BookDAO {
                     writer.newLine();
                 }
             }
+            reader.close();
+            writer.close();
+            sourceFile.delete();
+            outputFile.renameTo(sourceFile);
+        } catch (FileNotFoundException e) {
+            throw new DAOException(e);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bookTitle;
+    }
+
+
+    public String addDiscribe1(String titleOfDescribingBook, String describe) throws DAOException {
+        String bookTitle = null;
+        File sourceFile = new File("E://Epam/JavaOnlineTraining/Modul06/Task01/source", "Catalog.txt");
+        File outputFile = new File("E://Epam/JavaOnlineTraining/Modul06/Task01/source", "Catalog1.txt");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(sourceFile));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+            if (outputFile.exists()) {
+                outputFile.createNewFile();
+            }
+            String s = "";
+            List<Book> books = new ArrayList<>();
+            while ((s = reader.readLine()) != null) {
+                String[] s1 = s.split(" : ");
+                Book book = new Book.Builder().withTitle(s1[0]).withAuthor(s1[1]).withDescription(s1[2]).withBookType(s1[3]).build();
+                books.add(book);
+            }
+            for (Book book : books){
+                if(book.getTitle().equalsIgnoreCase(titleOfDescribingBook)){
+                    String description = book.getDescription() + describe;
+                    book.setDescription(description);
+                }
+            }
+
             reader.close();
             writer.close();
             sourceFile.delete();
